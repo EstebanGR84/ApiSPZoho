@@ -4,6 +4,7 @@ import com.cun.sinuApi.Models.Estudiante;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -66,14 +67,12 @@ public class OracleService {
                     return null;
                 }
             });
-
-            // Hacer algo con la respuesta obtenida
             if (respuesta != null) {
                 return respuesta;
             } else {
-                return "";
+                return "Registro Ok";
             }
-        } catch (Exception e) {
+        } catch (DataAccessException e) {
             logger.error("Error: " + e.getMessage());
             return e.getMessage();
         }
