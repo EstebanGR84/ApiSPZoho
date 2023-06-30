@@ -20,6 +20,13 @@ public class ControllerAdmisionesSinu {
     }
     @PostMapping("/")
     public ResponseEntity<Object> ejecutarProcedure(@RequestBody Estudiante estudiante){
+        if(estudiante.getCiudadNacimiento() == null || estudiante.getCiudadNacimiento() == ""){
+            return ResponseEntity.badRequest().body("parametro ciudad de nacimiento erroneo");
+        }if(estudiante.getCiudadExpedicion() == null || estudiante.getCiudadExpedicion() == ""){
+            return ResponseEntity.badRequest().body("parametro ciudad de expedicion erroneo");
+        }if(estudiante.getCiudadRecidencia() == null || estudiante.getCiudadRecidencia() == ""){
+            return ResponseEntity.badRequest().body("parametro ciudad de recidencia erroneo");
+        }
         String crearOportunidadResult = oracleServiceAdmisiones.crearOportunidadZoho(estudiante);
         if(crearOportunidadResult.equals("ok")){
             String numFormulario = oracleServiceAdmisiones.consultarNumFormulario(estudiante);
