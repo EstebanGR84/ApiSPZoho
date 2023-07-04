@@ -4,7 +4,7 @@ public class Estudiante {
     public Estudiante() {
     }
     private String usuario;
-    private String clave;
+    private String token;
     private int numeroDocumento;
     private long idRegistro;
     private String primerNombre;
@@ -30,8 +30,8 @@ public class Estudiante {
     public String ciudadExpedicion;
     public String getUsuario() { return usuario; }
     public void setUsuario(String usuario) { this.usuario = usuario; }
-    public String getClave() { return clave; }
-    public void setClave(String clave) { this.clave = clave; }
+    public String getToken() { return token; }
+    public void setToken(String token) { this.token = token; }
     public int getNumeroDocumento() {
         return numeroDocumento;
     }

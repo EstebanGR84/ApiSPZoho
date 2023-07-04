@@ -1,4 +1,5 @@
 package com.cun.sinuApi.Services;
+import com.cun.sinuApi.Models.Aspirante;
 import com.cun.sinuApi.Models.Estudiante;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +22,7 @@ public class OracleServiceAdmisiones {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public String crearOportunidadZoho(Estudiante estudiante) {
+    public String crearOportunidadZoho(Aspirante estudiante) {
         String sql = "BEGIN " +
                 "  ZOHO_CUN.cunp_zoho_control_conexion.crear_oportunidad_zoho"+
                 "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?); " +
@@ -29,14 +30,14 @@ public class OracleServiceAdmisiones {
         try {
             String respuesta = jdbcTemplate.execute((ConnectionCallback<String>) con -> {
                 CallableStatement callableStatement = con.prepareCall(sql);
-                callableStatement.setString(1, estudiante.getUsuario());
-                callableStatement.setString(2, estudiante.getClave());
-                callableStatement.setInt(3, estudiante.getNumeroDocumento());
-                callableStatement.setLong(4, estudiante.getIdRegistro());
-                callableStatement.setString(5, estudiante.getPrimerApellido());
-                callableStatement.setString(6, estudiante.getPrimerNombre());
-                callableStatement.setInt(7, estudiante.getPrograma());
-                callableStatement.setInt(8, estudiante.getProspecto());
+                callableStatement.setString(1, estudiante.getIdCliente());
+                callableStatement.setString(2, estudiante.getToken());
+                callableStatement.setLong(3, Long.parseLong(estudiante.getNumeroDocumento()));
+                callableStatement.setLong(4, Long.parseLong(estudiante.getIdRegistro()));
+                callableStatement.setString(5, estudiante.getApellidos());
+                callableStatement.setString(    6, estudiante.getNombres());
+                callableStatement.setInt(7, Integer.parseInt(estudiante.getPrograma()));
+                callableStatement.setLong(8, Long.parseLong(estudiante.getProspecto()));
                 callableStatement.setString(9, estudiante.getOwner());
                 callableStatement.setString(10, estudiante.getDireccion());
                 callableStatement.setString(11, estudiante.getEmail());
@@ -69,7 +70,7 @@ public class OracleServiceAdmisiones {
             return e.getMessage();
         }
     }
-    public String consultarNumFormulario(Estudiante estudiante) {
+    public String consultarNumFormulario(Aspirante estudiante) {
         try{
             String sql = "SELECT NUM_FORMULARIO FROM SINU.SRC_FORMULARIO sf WHERE sf.NUM_IDENTIFICACION = ? AND sf.ID_CRM = ?";
             String numFormulario = jdbcTemplate.queryForObject(sql, String.class,estudiante.getNumeroDocumento(), String.valueOf(estudiante.getIdRegistro()));
@@ -80,28 +81,26 @@ public class OracleServiceAdmisiones {
             return "Ocurrio un problema con tu peticion puede que el documento ya se encuentre registrado";
         }
     }
-    public void actualizarBasTercero(Estudiante estudiante, String geoNacimiento, String geoRecidencia, String geoExpedicion) {
+    public void actualizarBasTercero(Aspirante estudiante, String segundoApellido, String segundoNombre) {
         try{
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            Date fechaExpedicion = sdf.parse(estudiante.getFechaExpedicion());
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            java.util.Date fechaUtil = dateFormat.parse(estudiante.getFechaexpedicion());
+            java.sql.Date fechaSql = new java.sql.Date(fechaUtil.getTime());
             String sql = "UPDATE SINU.BAS_TERCERO bt SET bt.SEG_APELLIDO = ?,"+
-                    "bt.GRU_SANGUINEO = ?, bt.FRH_SANGUINEO = ?, "+
-                    "bt.SEG_NOMBRE = ?, FEC_EXP_DOCUMENTO = ?, "+
-                    "bt.ID_UBI_RES = ?, ID_UBI_NAC = ?, ID_UBI_DOCUMENTO = ? "+
+                    "bt.SEG_NOMBRE = ?, bt.FEC_EXP_DOCUMENTO = ?,"+
+                    "bt.ID_UBI_RES = ?, bt.ID_UBI_NAC = ?"+
                     "WHERE bt.NUM_IDENTIFICACION = ?";
             String respuesta = jdbcTemplate.execute((ConnectionCallback<String>) con -> {
                 CallableStatement callableStatement = con.prepareCall(sql);
-                callableStatement.setString(1, estudiante.getSegundoApellido());
-                callableStatement.setString(2, estudiante.getGrupoSanguineo());
-                callableStatement.setString(3, estudiante.getRhSanguineo());
-                callableStatement.setString(4, estudiante.getSegundoNombre());
-                callableStatement.setDate(5, new java.sql.Date(fechaExpedicion.getTime()));
-                callableStatement.setString(6, geoRecidencia);
-                callableStatement.setString(7, geoNacimiento);
-                callableStatement.setString(8, geoExpedicion);
-                callableStatement.setString(9, String.valueOf(estudiante.getNumeroDocumento()));
+                callableStatement.setString(1, segundoApellido);
+                callableStatement.setString(2, segundoNombre);
+                callableStatement.setDate(3, fechaSql);
+                callableStatement.setInt(4, Integer.parseInt(estudiante.getCiudadresidencia()));
+                callableStatement.setInt(5, Integer.parseInt(estudiante.getCiudadnacimiento()));
+                callableStatement.setString(6, String.valueOf(estudiante.getNumeroDocumento()));
                 callableStatement.executeUpdate();
                 return "ok";
+    
             });
         }
         catch (DataAccessException e){
