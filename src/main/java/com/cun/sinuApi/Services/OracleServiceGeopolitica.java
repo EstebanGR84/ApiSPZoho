@@ -8,6 +8,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class OracleServiceGeopolitica {
     private final JdbcTemplate jdbcTemplate;
@@ -19,7 +21,8 @@ public class OracleServiceGeopolitica {
         try{
             String sql = "SELECT ID_GEOPOLITICA FROM SINU.BAS_GEOPOLITICA bg WHERE UPPER(NOM_DIV_GEOPOLITICA) LIKE ?";
             String formato = "%"+nomCiudad.toUpperCase()+"%";
-            String idGeo = jdbcTemplate.queryForObject(sql, String.class, formato);
+            List<String> idGeoList = jdbcTemplate.queryForList(sql, String.class, formato);
+            String idGeo = idGeoList.isEmpty() ? null : idGeoList.get(0);
             return idGeo;
         }
         catch (DataAccessException e){

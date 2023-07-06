@@ -25,7 +25,6 @@ public class ControllerAdmisionesSinu {
     }
     @PostMapping("/")
     public ResponseEntity<Object> ejecutarProcedure(@RequestBody Aspirante estudiante){
-        logger.error("Estudiante: " + estudiante);
         String primerNombre = estudiante.getNombres();
         String primerApellido = estudiante.getApellidos();
         String segundoNombre = "";
@@ -45,12 +44,13 @@ public class ControllerAdmisionesSinu {
         String crearOportunidadResult = oracleServiceAdmisiones.crearOportunidadZoho(estudiante);
         if(crearOportunidadResult.equals("ok")){
             String numFormulario = oracleServiceAdmisiones.consultarNumFormulario(estudiante);
-            // String ciudadNacimiento = oracleServiceGeopolitica.consultarGeopolitica(estudiante.getCiudadNacimiento());
-            //String ciudadRecidencia = oracleServiceGeopolitica.consultarGeopolitica(estudiante.getCiudadRecidencia());
-            //String ciudadExpedicion = oracleServiceGeopolitica.consultarGeopolitica(estudiante.getCiudadExpedicion());
-            //oracleServiceAdmisiones.actualizarBasTercero(estudiante, ciudadNacimiento, ciudadRecidencia, ciudadExpedicion);
-            oracleServiceAdmisiones.actualizarBasTercero(estudiante, segundoApellido, segundoApellido);
+            if(estudiante.getLugarexpedicion().contains("D.C.") || estudiante.getLugarexpedicion().contains("d.c.") || estudiante.getLugarexpedicion().contains(" DC")){
+                estudiante.setLugarexpedicion("bogota");
+            }
+            String ciudadExpedicion = oracleServiceGeopolitica.consultarGeopolitica(estudiante.getLugarexpedicion());
+            oracleServiceAdmisiones.actualizarBasTercero(estudiante, segundoApellido, segundoNombre, ciudadExpedicion);
             ResponseRegistroSinu response = new ResponseRegistroSinu();
+            response.setStatus("Success");
             response.setNoFormulario(numFormulario);
             response.setNoIdRegistrado(String.valueOf(estudiante.getNumeroDocumento()));
             return ResponseEntity.ok().body(response);
@@ -58,34 +58,6 @@ public class ControllerAdmisionesSinu {
         else{
               return ResponseEntity.ok().body(crearOportunidadResult);
         }
-        //String numFormulario = oracleServiceAdmisiones.consultarNumFormulario(estudiante);
-        //oracleServiceAdmisiones.actualizarBasTercero(estudiante, segundoApellido, segundoApellido);
-        //ResponseRegistroSinu response = new ResponseRegistroSinu();
-        //response.setNoFormulario(numFormulario);
-        //response.setNoIdRegistrado(String.valueOf(estudiante.getNumeroDocumento()));
-        //return ResponseEntity.ok().body(response);
-        //if(estudiante.getCiudadNacimiento() == null || estudiante.getCiudadNacimiento() == ""){
-          //  return ResponseEntity.badRequest().body("parametro ciudad de nacimiento erroneo");
-        //}if(estudiante.getCiudadExpedicion() == null || estudiante.getCiudadExpedicion() == ""){
-          //  return ResponseEntity.badRequest().body("parametro ciudad de expedicion erroneo");
-        //}if(estudiante.getCiudadRecidencia() == null || estudiante.getCiudadRecidencia() == ""){
-          //  return ResponseEntity.badRequest().body("parametro ciudad de recidencia erroneo");
-        //}
-        //String crearOportunidadResult = oracleServiceAdmisiones.crearOportunidadZoho(estudiante);
-        //if(crearOportunidadResult.equals("ok")){
-          //  String numFormulario = oracleServiceAdmisiones.consultarNumFormulario(estudiante);
-           // String ciudadNacimiento = oracleServiceGeopolitica.consultarGeopolitica(estudiante.getCiudadNacimiento());
-            //String ciudadRecidencia = oracleServiceGeopolitica.consultarGeopolitica(estudiante.getCiudadRecidencia());
-            //String ciudadExpedicion = oracleServiceGeopolitica.consultarGeopolitica(estudiante.getCiudadExpedicion());
-            //oracleServiceAdmisiones.actualizarBasTercero(estudiante, ciudadNacimiento, ciudadRecidencia, ciudadExpedicion);
-            //ResponseRegistroSinu response = new ResponseRegistroSinu();
-            //response.setNoFormulario(numFormulario);
-            //response.setNoIdRegistrado(String.valueOf(estudiante.getNumeroDocumento()));
-            //return ResponseEntity.ok().body(response);
-        //}
-        //else{
-          //  return ResponseEntity.ok().body(crearOportunidadResult);
-        //}
     }
 
 

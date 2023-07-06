@@ -2,6 +2,7 @@ package com.cun.sinuApi.Models;
 
 public class Aspirante {
     private String idCliente;
+    private String tipoid;
     private String token;
     private String numeroDocumento;
     private String idRegistro;
@@ -27,6 +28,8 @@ public class Aspirante {
     private String ciudad_nacimiento;
     private String ciudadresidencia;
     private String ciudad_residencia;
+    private String lugarexpedicion;
+
 
     public String getFechaexpedicion() {
         return fechaexpedicion;
@@ -223,5 +226,21 @@ public class Aspirante {
 
     public void setCiudad_residencia(String ciudad_residencia) {
         this.ciudad_residencia = ciudad_residencia;
+    }
+
+    public String getLugarexpedicion() {
+        return lugarexpedicion;
+    }
+
+    public void setLugarexpedicion(String lugarexpedicion) {
+        this.lugarexpedicion = lugarexpedicion;
+    }
+
+    public String getTipoid() {
+        return tipoid;
+    }
+
+    public void setTipoid(String tipoid) {
+        this.tipoid = tipoid;
     }
 }

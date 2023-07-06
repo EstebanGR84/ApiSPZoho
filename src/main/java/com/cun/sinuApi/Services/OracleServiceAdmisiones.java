@@ -9,10 +9,8 @@ import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import java.sql.CallableStatement;
-import java.sql.Connection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 @Component
 public class OracleServiceAdmisiones {
     private final JdbcTemplate jdbcTemplate;
@@ -32,7 +30,7 @@ public class OracleServiceAdmisiones {
                 CallableStatement callableStatement = con.prepareCall(sql);
                 callableStatement.setString(1, estudiante.getIdCliente());
                 callableStatement.setString(2, estudiante.getToken());
-                callableStatement.setLong(3, Long.parseLong(estudiante.getNumeroDocumento()));
+                callableStatement.setString(3, estudiante.getNumeroDocumento());
                 callableStatement.setLong(4, Long.parseLong(estudiante.getIdRegistro()));
                 callableStatement.setString(5, estudiante.getApellidos());
                 callableStatement.setString(    6, estudiante.getNombres());
@@ -45,7 +43,7 @@ public class OracleServiceAdmisiones {
                 callableStatement.setString(13, estudiante.getCelular());
                 callableStatement.setString(14, estudiante.getFechaNacimiento());
                 callableStatement.setString(15, null);
-                callableStatement.setString(16, null);
+                callableStatement.setString(16, String.valueOf(estudiante.getGenero().charAt(0)));
                 callableStatement.setString(17, null);
                 callableStatement.setString(18, null);
                 callableStatement.setString(19, null);
@@ -81,26 +79,56 @@ public class OracleServiceAdmisiones {
             return "Ocurrio un problema con tu peticion puede que el documento ya se encuentre registrado";
         }
     }
-    public void actualizarBasTercero(Aspirante estudiante, String segundoApellido, String segundoNombre) {
+        public void actualizarBasTercero(Aspirante estudiante, String segundoApellido, String segundoNombre, String ciudadExpedicion) {
+        String tipoDoc;
+        if(estudiante.getTipoid().contains("Identidad")){
+            tipoDoc = "T";
+        }
+        else if(estudiante.getTipoid().contains("Ciudadanía")){
+            tipoDoc = "C";
+        }
+        else if(estudiante.getTipoid().contains("Pasaporte")){
+            tipoDoc = "P";
+        }
+        else if(estudiante.getTipoid().contains("Extranjería")){
+            tipoDoc = "E";
+        }
+        else {
+            tipoDoc = "C";
+        }
+            if(estudiante.getCiudadnacimiento().equals("2390")){
+            estudiante.setCiudadnacimiento("2459");
+        }
+        if(estudiante.getCiudadresidencia().equals("2390")){
+            estudiante.setCiudadresidencia("2459");
+        }
+
+
         try{
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             java.util.Date fechaUtil = dateFormat.parse(estudiante.getFechaexpedicion());
             java.sql.Date fechaSql = new java.sql.Date(fechaUtil.getTime());
             String sql = "UPDATE SINU.BAS_TERCERO bt SET bt.SEG_APELLIDO = ?,"+
                     "bt.SEG_NOMBRE = ?, bt.FEC_EXP_DOCUMENTO = ?,"+
-                    "bt.ID_UBI_RES = ?, bt.ID_UBI_NAC = ?"+
+                    "bt.ID_UBI_RES = ?, bt.ID_UBI_NAC = ?, ID_UBI_DOCUMENTO = ?, TIP_IDENTIFICACION = ?"+
                     "WHERE bt.NUM_IDENTIFICACION = ?";
             String respuesta = jdbcTemplate.execute((ConnectionCallback<String>) con -> {
                 CallableStatement callableStatement = con.prepareCall(sql);
                 callableStatement.setString(1, segundoApellido);
                 callableStatement.setString(2, segundoNombre);
                 callableStatement.setDate(3, fechaSql);
-                callableStatement.setInt(4, Integer.parseInt(estudiante.getCiudadresidencia()));
-                callableStatement.setInt(5, Integer.parseInt(estudiante.getCiudadnacimiento()));
-                callableStatement.setString(6, String.valueOf(estudiante.getNumeroDocumento()));
+                callableStatement.setString(4, estudiante.getCiudadresidencia());
+                callableStatement.setString(5, estudiante.getCiudadnacimiento());
+                if(ciudadExpedicion.equals("2390")){
+                    callableStatement.setString(6,"2459");
+                }else {
+                    callableStatement.setString(6,ciudadExpedicion);
+                }
+                callableStatement.setString(7, tipoDoc);
+                callableStatement.setString(8, String.valueOf(estudiante.getNumeroDocumento()));
                 callableStatement.executeUpdate();
                 return "ok";
-    
+
             });
         }
         catch (DataAccessException e){
