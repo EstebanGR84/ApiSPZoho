@@ -1,9 +1,8 @@
 package com.cun.sinuApi.Controllers;
 
 import com.cun.sinuApi.Models.Aspirante;
-import com.cun.sinuApi.Models.Estudiante;
-import com.cun.sinuApi.Models.JsonRequest;
 import com.cun.sinuApi.Models.ResponseRegistroSinu;
+import com.cun.sinuApi.Services.EmailService;
 import com.cun.sinuApi.Services.OracleServiceAdmisiones;
 import com.cun.sinuApi.Services.OracleServiceGeopolitica;
 import org.slf4j.Logger;
@@ -18,10 +17,13 @@ public class ControllerAdmisionesSinu {
     private final OracleServiceAdmisiones oracleServiceAdmisiones;
     @Autowired
     private final OracleServiceGeopolitica oracleServiceGeopolitica;
+    @Autowired
+    private final EmailService emailService;
     private static final Logger logger = LoggerFactory.getLogger(ControllerAdmisionesSinu.class);
-    public ControllerAdmisionesSinu(OracleServiceAdmisiones oracleServiceAdmisiones, OracleServiceGeopolitica oracleServiceGeopolitica) {
+    public ControllerAdmisionesSinu(OracleServiceAdmisiones oracleServiceAdmisiones, OracleServiceGeopolitica oracleServiceGeopolitica, EmailService emailService) {
         this.oracleServiceAdmisiones = oracleServiceAdmisiones;
         this.oracleServiceGeopolitica = oracleServiceGeopolitica;
+        this.emailService = emailService;
     }
     @PostMapping("/")
     public ResponseEntity<Object> ejecutarProcedure(@RequestBody Aspirante estudiante){
@@ -48,6 +50,12 @@ public class ControllerAdmisionesSinu {
                 estudiante.setLugarexpedicion("bogota");
             }
             String ciudadExpedicion = oracleServiceGeopolitica.consultarGeopolitica(estudiante.getLugarexpedicion());
+            if(ciudadExpedicion == null || ciudadExpedicion.equals("")){
+                String destinatario = "jose_gomezre@cun.edu.co";
+                String asunto = "Geopolitica sin encontrar";
+                String contenido = "No Pudimos encontrar la ciudad "+ estudiante.getLugarexpedicion();
+                emailService.enviarCorreo(destinatario, asunto, contenido);
+            }
             oracleServiceAdmisiones.actualizarBasTercero(estudiante, segundoApellido, segundoNombre, ciudadExpedicion);
             ResponseRegistroSinu response = new ResponseRegistroSinu();
             response.setStatus("Success");
@@ -59,7 +67,4 @@ public class ControllerAdmisionesSinu {
               return ResponseEntity.ok().body(crearOportunidadResult);
         }
     }
-
-
-
 }

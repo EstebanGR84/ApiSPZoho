@@ -76,7 +76,14 @@ public class OracleServiceAdmisiones {
         }
         catch (DataAccessException e){
             logger.error("Error: " + e.getMessage());
-            return "Ocurrio un problema con tu peticion puede que el documento ya se encuentre registrado";
+            try{
+                String sql = "SELECT TEXTO_ESTADO FROM ZOHO_CUN.CUNT_ZOHO_CONTROL_CONEXION sf WHERE sf.LLAVE_UNICA_OPORTUNIDAD = ?";
+                String MessageError = jdbcTemplate.queryForObject(sql, String.class, String.valueOf(estudiante.getIdRegistro()));
+                return MessageError;
+            }
+            catch(Exception ex){
+                return ex.getMessage();
+            }
         }
     }
         public void actualizarBasTercero(Aspirante estudiante, String segundoApellido, String segundoNombre, String ciudadExpedicion) {
