@@ -7,6 +7,7 @@ import com.cun.sinuApi.Services.ChatGPTService;
 import com.cun.sinuApi.Services.EmailService;
 import com.cun.sinuApi.Services.OracleServiceAdmisiones;
 import com.cun.sinuApi.Services.OracleServiceGeopolitica;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import reactor.core.publisher.Mono;
 
+import java.text.Normalizer;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +39,7 @@ public class ControllerAdmisionesSinu {
         this.chatGpt = chatGpt;
     }
     @PostMapping("/")
-    public ResponseEntity<Object> ejecutarProcedure(@RequestBody Aspirante estudiante){
+    public ResponseEntity<Object> ejecutarProcedure(@RequestBody Aspirante estudiante) throws JsonProcessingException {
         String primerNombre = estudiante.getNombres();
         String primerApellido = estudiante.getApellidos();
         String segundoNombre = "";
@@ -63,12 +65,18 @@ public class ControllerAdmisionesSinu {
             if(estudiante.getLugarexpedicion().contains("D.C.") || estudiante.getLugarexpedicion().contains("d.c.") || estudiante.getLugarexpedicion().contains(" DC")){
                 estudiante.setLugarexpedicion("bogota");
             }
-            String ciudadExpedicion = oracleServiceGeopolitica.consultarGeopolitica(estudiante.getLugarexpedicion());
+            String ciudadExpedicion = oracleServiceGeopolitica.consultarGeopolitica(Normalizer.normalize(estudiante.getLugarexpedicion(), Normalizer.Form.NFD)
+                    .replaceAll("\\p{InCombiningDiacriticalMarks}+", ""));
             if(ciudadExpedicion == null || ciudadExpedicion.equals("")){
-                String destinatario = "jose_gomezre@cun.edu.co";
-                String asunto = "Geopolitica sin encontrar";
-                String contenido = "No Pudimos encontrar la ciudad "+ estudiante.getLugarexpedicion();
-                emailService.enviarCorreo(destinatario, asunto, contenido);
+                estudiante.setLugarexpedicion(chatGpt.sendMessageChatGPT(estudiante.getLugarexpedicion()));
+                ciudadExpedicion = oracleServiceGeopolitica.consultarGeopolitica(Normalizer.normalize(estudiante.getLugarexpedicion(), Normalizer.Form.NFD)
+                        .replaceAll("\\p{InCombiningDiacriticalMarks}+", ""));
+                if(ciudadExpedicion == null || ciudadExpedicion.equals("")){
+                    String destinatario = "jose_gomezre@cun.edu.co";
+                    String asunto = "Geopolitica sin encontrar";
+                    String contenido = "No Pudimos encontrar la ciudad "+ estudiante.getLugarexpedicion();
+                    emailService.enviarCorreo(destinatario, asunto, contenido);
+                }
             }
             oracleServiceAdmisiones.actualizarBasTercero(estudiante, segundoApellido, segundoNombre, ciudadExpedicion);
             ResponseRegistroSinu response = new ResponseRegistroSinu();
@@ -115,9 +123,8 @@ public class ControllerAdmisionesSinu {
                 );
     }
     @PostMapping("/ciudad")
-    public ResponseEntity<String> buscarCiudad(){
+    public ResponseEntity<String> buscarCiudad() throws JsonProcessingException {
 
-        return ResponseEntity.ok( chatGpt.sendMessageChatGPT("puedes de este texto escribirme solo la ciudad que corresponde sin ningun tipo de descripcion y " +
-                "sin ningun otra palabra Montelibano-Cordoba"));
+        return ResponseEntity.ok( chatGpt.sendMessageChatGPT("SAMANIEGO-NARIÑO"));
     }
 }

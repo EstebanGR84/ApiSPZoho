@@ -124,7 +124,7 @@ public class OracleServiceAdmisiones {
                     "bt.ID_UBI_RES = ?, bt.ID_UBI_NAC = ?, ID_UBI_DOCUMENTO = ?, TIP_IDENTIFICACION = ?"+
                     "WHERE bt.NUM_IDENTIFICACION = ?";
             String respuesta = jdbcTemplate.execute((ConnectionCallback<String>) con -> {
-                CallableStatement callableStatement = con.prepareCall(sql);
+                    CallableStatement callableStatement = con.prepareCall(sql);
                 callableStatement.setString(1, segundoApellido);
                 callableStatement.setString(2, segundoNombre);
                 callableStatement.setDate(3, fechaSql);
