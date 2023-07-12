@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component;
 import java.sql.CallableStatement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.Map;
+
 @Component
 public class OracleServiceAdmisiones {
     private final JdbcTemplate jdbcTemplate;
@@ -19,7 +22,6 @@ public class OracleServiceAdmisiones {
     public OracleServiceAdmisiones(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
-
     public String crearOportunidadZoho(Aspirante estudiante) {
         String sql = "BEGIN " +
                 "  ZOHO_CUN.cunp_zoho_control_conexion.crear_oportunidad_zoho"+
@@ -65,6 +67,8 @@ public class OracleServiceAdmisiones {
             return "ok";
         } catch (DataAccessException e) {
             logger.error("Error: " + e.getMessage());
+            //String delete = "DELETE FROM ZOHO_CUN.CUNT_ZOHO_CONTROL_CONEXION sf WHERE sf.LLAVE_UNICA_OPORTUNIDAD = '"+estudiante.getIdRegistro()+"'";
+            //jdbcTemplate.execute(delete);
             return e.getMessage();
         }
     }
@@ -79,6 +83,8 @@ public class OracleServiceAdmisiones {
             try{
                 String sql = "SELECT TEXTO_ESTADO FROM ZOHO_CUN.CUNT_ZOHO_CONTROL_CONEXION sf WHERE sf.LLAVE_UNICA_OPORTUNIDAD = ?";
                 String MessageError = jdbcTemplate.queryForObject(sql, String.class, String.valueOf(estudiante.getIdRegistro()));
+                String delete = "DELETE FROM ZOHO_CUN.CUNT_ZOHO_CONTROL_CONEXION sf WHERE sf.LLAVE_UNICA_OPORTUNIDAD = '"+estudiante.getIdRegistro()+"'";
+                jdbcTemplate.execute(delete);
                 return MessageError;
             }
             catch(Exception ex){
@@ -86,7 +92,7 @@ public class OracleServiceAdmisiones {
             }
         }
     }
-        public void actualizarBasTercero(Aspirante estudiante, String segundoApellido, String segundoNombre, String ciudadExpedicion) {
+    public void actualizarBasTercero(Aspirante estudiante, String segundoApellido, String segundoNombre, String ciudadExpedicion) {
         String tipoDoc;
         if(estudiante.getTipoid().contains("Identidad")){
             tipoDoc = "T";
@@ -109,8 +115,6 @@ public class OracleServiceAdmisiones {
         if(estudiante.getCiudadresidencia().equals("2390")){
             estudiante.setCiudadresidencia("2459");
         }
-
-
         try{
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             java.util.Date fechaUtil = dateFormat.parse(estudiante.getFechaexpedicion());
@@ -142,6 +146,65 @@ public class OracleServiceAdmisiones {
             logger.error("Error: " + e.getMessage());
         } catch (ParseException e) {
             throw new RuntimeException(e);
+        }
+    }
+    public List<Map<String, Object>> consultarPeriodoDeIngreso(){
+        try{
+            String sql = "SELECT DISTINCT PERIODO FROM CUNT_PROMOCIONES_DISPONIBLES WHERE ESTADO = 'A' AND TIPO_PROMOCION = 'PAGO ANTICIPADO'";
+            List<Map<String, Object>> periodos = jdbcTemplate.queryForList(sql);
+            return periodos;
+        }
+        catch (DataAccessException e){
+            logger.error("Error: " + e.getMessage());
+            return null;
+        }
+    }
+    public  List<Map<String, Object>> consultarRegional(){
+        try{
+            String sql = "SELECT ID_SECCIONAL, NOM_SECCIONAL FROM sinu.src_seccional WHERE nom_seccional LIKE '%Regional%'";
+            List<Map<String, Object>> regionales = jdbcTemplate.queryForList(sql);
+            return regionales;
+        }
+        catch (DataAccessException e){
+            logger.error("Error: " + e.getMessage());
+            return null;
+        }
+    }
+    public List<Map<String, Object>> consultarProgramas(String periodo){
+        try{
+            String sql = "SELECT DISTINCT PROGRAMA FROM CUNT_PROMOCIONES_DISPONIBLES WHERE ESTADO = 'A' AND TIPO_PROMOCION = 'PAGO ANTICIPADO' AND PERIODO = ?";
+            List<Map<String, Object>> programas = jdbcTemplate.queryForList(sql, periodo);
+            return programas;
+        }
+        catch (DataAccessException e){
+            logger.error("Error: " + e.getMessage());
+            return null;
+        }
+    }
+    public List<Map<String, Object>> consultarCiclos(String periodo, String programa){
+        try{
+            String sql = "SELECT DISTINCT CICLO FROM CUNT_PROMOCIONES_DISPONIBLES WHERE ESTADO = 'A' " +
+                         "AND TIPO_PROMOCION = 'PAGO ANTICIPADO' " +
+                         "AND PERIODO = ? AND PROGRAMA = ? ORDER BY CICLO DESC";
+            List<Map<String, Object>> ciclos = jdbcTemplate.queryForList(sql, periodo, programa);
+            return ciclos;
+        }
+        catch (DataAccessException e){
+            logger.error("Error: " + e.getMessage());
+            return null;
+        }
+    }
+    public List<Map<String, Object>> consultarTiposInscripcion(String periodo, String programa, String ciclo){
+        try{
+            String sql = "SELECT DISTINCT TIPO_INSCRIPCION FROM CUNT_PROMOCIONES_DISPONIBLES WHERE ESTADO = 'A' " +
+                    "AND TIPO_PROMOCION = 'PAGO ANTICIPADO' AND PERIODO = ? " +
+                    "AND PROGRAMA = ? AND CICLO = ?";
+            List<Map<String, Object>> TipoI = jdbcTemplate.queryForList(sql, periodo, programa, ciclo);
+            return TipoI;
+        }
+        catch (DataAccessException e){
+            logger.error("Error: " + e.getMessage());
+            return null;
         }
     }
 }
