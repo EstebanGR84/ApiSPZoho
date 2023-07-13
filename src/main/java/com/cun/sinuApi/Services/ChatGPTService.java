@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -17,7 +18,8 @@ import java.util.List;
 @Service
 public class ChatGPTService {
     private static final String BASE_URL = "https://api.openai.com/v1/chat/completions";
-    private static final String API_KEY = "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";
+    @Value("${app.keyGpt}")
+    private String API_KEY;
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 

@@ -123,8 +123,8 @@ public class ControllerAdmisionesSinu {
                 );
     }
     @PostMapping("/ciudad")
-    public ResponseEntity<String> buscarCiudad() throws JsonProcessingException {
+    public ResponseEntity<String> buscarCiudad(@RequestBody JsonNode datos) throws JsonProcessingException {
 
-        return ResponseEntity.ok( chatGpt.sendMessageChatGPT("SAMANIEGO-NARIÑO"));
+        return ResponseEntity.ok( chatGpt.sendMessageChatGPT(datos.get("ciudad").asText()));
     }
 }
