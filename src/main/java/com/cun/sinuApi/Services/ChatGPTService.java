@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -18,8 +17,7 @@ import java.util.List;
 @Service
 public class ChatGPTService {
     private static final String BASE_URL = "https://api.openai.com/v1/chat/completions";
-    @Value("${miapp.api_keyGPT}")
-    private String API_KEY;
+    private static final String API_KEY = "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";
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
@@ -34,6 +32,7 @@ public class ChatGPTService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.setBearerAuth(this.API_KEY);
+            // Crear una lista de mensajes
             String requestBody = "{\"model\": \"gpt-3.5-turbo\", \"messages\": [{\"role\": \"user\", \"content\": \"puedes de este texto escribirme solo la ciudad que corresponde sin ningun tipo de descripcion y sin ningun otra palabra "+ciudad+"\"}]}";
             HttpEntity<String> httpEntity = new HttpEntity<>(requestBody, headers);
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, httpEntity, String.class);
