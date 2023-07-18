@@ -92,8 +92,23 @@ public class OracleServiceAdmisiones {
             }
         }
     }
+    public boolean validarExistencia(Aspirante estudiante){
+        try{
+            String sqlValidacion = "SELECT NUM_IDENTIFICACION FROM SINU.BAS_TERCERO bt WHERE bt.NUM_IDENTIFICACION = ?";
+            List<Map<String, Object>> usuario = jdbcTemplate.queryForList(sqlValidacion, estudiante.getNumeroDocumento());
+            if(usuario.size() != 0){
+                return true;
+            }
+            return false;
+        }
+        catch (Exception e){
+            logger.error(e.getMessage());
+            return false;
+        }
+    }
     public void actualizarBasTercero(Aspirante estudiante, String segundoApellido, String segundoNombre, String ciudadExpedicion) {
         String tipoDoc;
+
         if(estudiante.getTipoid().contains("Identidad")){
             tipoDoc = "T";
         }
@@ -116,6 +131,7 @@ public class OracleServiceAdmisiones {
             estudiante.setCiudadresidencia("2459");
         }
         try{
+
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             java.util.Date fechaUtil = dateFormat.parse(estudiante.getFechaexpedicion());
             java.sql.Date fechaSql = new java.sql.Date(fechaUtil.getTime());
@@ -207,4 +223,32 @@ public class OracleServiceAdmisiones {
             return null;
         }
     }
+    public  List<Map<String, Object>> consultarValorMatricula(String periodo, String programa, String ciclo, String tipoInscripcion){
+        try{
+            String sql = "SELECT DISTINCT VALOR_MATRICULA, VALOR_IDIOMAS, VALOR_SERVICIO " +
+                    "FROM CUNT_PROMOCIONES_DISPONIBLES WHERE ESTADO = 'A' " +
+                    "AND TIPO_PROMOCION = 'PAGO ANTICIPADO' AND PERIODO = ? " +
+                    "AND PROGRAMA = ? AND CICLO = ? AND TIPO_INSCRIPCION = ? ";
+            List<Map<String, Object>> valorMatricula = jdbcTemplate.queryForList(sql, periodo, programa, ciclo,tipoInscripcion);
+            return valorMatricula;
+        }
+        catch (DataAccessException e){
+            logger.error("Error: " + e.getMessage());
+            return null;
+        }
+    }public  List<Map<String, Object>> consultarDescuentoMatricula(String periodo){
+        try{
+            String sql = "SELECT GRUPO, (PORCENTAJE * -1) PORCENTAJE " +
+                    "FROM VENCIMIENTO_PERIODO WHERE PERIODO = ? " +
+                    "AND GRUPO > 100 AND FECHA_VENCIMIENTO > SYSDATE " +
+                    "ORDER BY PORCENTAJE ";
+            List<Map<String, Object>> descuento = jdbcTemplate.queryForList(sql, periodo);
+            return descuento;
+        }
+        catch (DataAccessException e){
+            logger.error("Error: " + e.getMessage());
+            return null;
+        }
+    }
+
 }

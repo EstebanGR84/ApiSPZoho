@@ -46,6 +46,13 @@ public class ControllerAdmisionesSinu {
         String segundoApellido = "";
         String[] nombres = estudiante.getNombres().split(" ");
         String[] apellidos = estudiante.getApellidos().split(" ");
+        if(oracleServiceAdmisiones.validarExistencia(estudiante)){
+            ResponseRegistroSinu response = new ResponseRegistroSinu();
+            response.setStatus("Error");
+            response.setNoFormulario("El documento ya se encuentra registrado en nuestra base de datos");
+            response.setNoIdRegistrado(String.valueOf(estudiante.getNumeroDocumento()));
+            return ResponseEntity.ok().body(response);
+        }
         if(nombres.length > 1){
             primerNombre = nombres[0].toUpperCase();;
             segundoNombre = nombres[1].toUpperCase();;
@@ -122,9 +129,21 @@ public class ControllerAdmisionesSinu {
                                                                        datos.get("ciclo").asText())
                 );
     }
+    @PostMapping("/valorMatricula")
+    public ResponseEntity <List<Map<String, Object>>> valorMatricula(@RequestBody JsonNode datos){
+        return ResponseEntity.ok(
+                this.oracleServiceAdmisiones.consultarValorMatricula(datos.get("periodo").asText(),
+                                                                       datos.get("programa").asText(),
+                                                                       datos.get("ciclo").asText(),
+                                                                       datos.get("tipoInscripcion").asText())
+                );
+    }@PostMapping("/descuento")
+    public ResponseEntity <List<Map<String, Object>>> descueno(@RequestBody JsonNode datos){
+        return ResponseEntity.ok(
+                this.oracleServiceAdmisiones.consultarDescuentoMatricula(datos.get("periodo").asText()));
+    }
     @PostMapping("/ciudad")
     public ResponseEntity<String> buscarCiudad(@RequestBody JsonNode datos) throws JsonProcessingException {
-
         return ResponseEntity.ok( chatGpt.sendMessageChatGPT(datos.get("ciudad").asText()));
     }
 }
