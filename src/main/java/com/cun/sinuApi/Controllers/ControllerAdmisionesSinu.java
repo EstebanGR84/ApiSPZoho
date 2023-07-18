@@ -61,7 +61,7 @@ public class ControllerAdmisionesSinu {
             primerApellido = apellidos[0].toUpperCase();;
             segundoApellido = apellidos[1].toUpperCase();;
         }
-        if(estudiante.getLugarexpedicion().equals("") || estudiante.getLugarexpedicion() == null ){
+        if(estudiante.getLugarexpedicion() == null || estudiante.getLugarexpedicion().equals("")){
             estudiante.setLugarexpedicion("bogota");
         }
         estudiante.setApellidos(primerApellido);

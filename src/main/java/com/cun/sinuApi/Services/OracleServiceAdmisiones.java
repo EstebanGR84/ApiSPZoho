@@ -109,22 +109,27 @@ public class OracleServiceAdmisiones {
     public void actualizarBasTercero(Aspirante estudiante, String segundoApellido, String segundoNombre, String ciudadExpedicion) {
         String tipoDoc;
 
-        if(estudiante.getTipoid().contains("Identidad")){
-            tipoDoc = "T";
-        }
-        else if(estudiante.getTipoid().contains("Ciudadanía")){
-            tipoDoc = "C";
-        }
-        else if(estudiante.getTipoid().contains("Pasaporte")){
-            tipoDoc = "P";
-        }
-        else if(estudiante.getTipoid().contains("Extranjería")){
-            tipoDoc = "E";
+        if(estudiante.getTipoid() != null){
+            if(estudiante.getTipoid().contains("Identidad")){
+                tipoDoc = "T";
+            }
+            else if(estudiante.getTipoid().contains("Ciudadanía")){
+                tipoDoc = "C";
+            }
+            else if(estudiante.getTipoid().contains("Pasaporte")){
+                tipoDoc = "P";
+            }
+            else if(estudiante.getTipoid().contains("Extranjería")){
+                tipoDoc = "E";
+            }
+            else {
+                tipoDoc = "C";
+            }
         }
         else {
             tipoDoc = "C";
         }
-            if(estudiante.getCiudadnacimiento().equals("2390")){
+        if(estudiante.getCiudadnacimiento().equals("2390")){
             estudiante.setCiudadnacimiento("2459");
         }
         if(estudiante.getCiudadresidencia().equals("2390")){
