@@ -129,10 +129,10 @@ public class OracleServiceAdmisiones {
         else {
             tipoDoc = "C";
         }
-        if(estudiante.getCiudadnacimiento().equals("2390")){
+        if(estudiante.getCiudadnacimiento() == null || estudiante.getCiudadnacimiento().equals("2390")){
             estudiante.setCiudadnacimiento("2459");
         }
-        if(estudiante.getCiudadresidencia().equals("2390")){
+        if(estudiante.getCiudadresidencia() == null || estudiante.getCiudadresidencia().equals("2390")){
             estudiante.setCiudadresidencia("2459");
         }
         try{
