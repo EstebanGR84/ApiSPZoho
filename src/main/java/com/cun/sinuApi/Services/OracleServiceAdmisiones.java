@@ -135,8 +135,13 @@ public class OracleServiceAdmisiones {
         if(estudiante.getCiudadresidencia() == null || estudiante.getCiudadresidencia().equals("2390")){
             estudiante.setCiudadresidencia("2459");
         }
+        if(estudiante.getCiudadresidencia().equals("33")){
+            estudiante.setCiudadresidencia("926");
+        }
+        if(estudiante.getCiudadnacimiento().equals("33")){
+            estudiante.setCiudadnacimiento("926");
+        }
         try{
-
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             java.util.Date fechaUtil = dateFormat.parse(estudiante.getFechaexpedicion());
             java.sql.Date fechaSql = new java.sql.Date(fechaUtil.getTime());
@@ -153,14 +158,17 @@ public class OracleServiceAdmisiones {
                 callableStatement.setString(5, estudiante.getCiudadnacimiento());
                 if(ciudadExpedicion.equals("2390")){
                     callableStatement.setString(6,"2459");
-                }else {
+                }
+                else if(ciudadExpedicion.equals("33")){
+                    callableStatement.setString(6,"926");
+                }
+                else {
                     callableStatement.setString(6,ciudadExpedicion);
                 }
                 callableStatement.setString(7, tipoDoc);
                 callableStatement.setString(8, String.valueOf(estudiante.getNumeroDocumento()));
                 callableStatement.executeUpdate();
                 return "ok";
-
             });
         }
         catch (DataAccessException e){
