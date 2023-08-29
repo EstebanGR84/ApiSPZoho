@@ -249,7 +249,8 @@ public class OracleServiceAdmisiones {
             logger.error("Error: " + e.getMessage());
             return null;
         }
-    }public  List<Map<String, Object>> consultarDescuentoMatricula(String periodo){
+    }
+    public  List<Map<String, Object>> consultarDescuentoMatricula(String periodo){
         try{
             String sql = "SELECT GRUPO, (PORCENTAJE * -1) PORCENTAJE " +
                     "FROM VENCIMIENTO_PERIODO WHERE PERIODO = ? " +
@@ -263,5 +264,20 @@ public class OracleServiceAdmisiones {
             return null;
         }
     }
+    public  List<Map<String, Object>> consultarPensumCarrera(String codigoPrograma, String nivelIngreso){
+        try{
+            String sql = "SELECT * FROM SINU.SRC_MAT_PENSUM " +
+                    "WHERE COD_UNIDAD = ? " +
+                    "AND NUM_NIVEL < ? " +
+                    "ORDER BY NUM_NIVEL ";
+            List<Map<String, Object>> materiasData = jdbcTemplate.queryForList(sql, codigoPrograma, Integer.parseInt(nivelIngreso));
+            return materiasData;
+        }
+        catch (DataAccessException e){
+            logger.error("Error: " + e.getMessage());
+            return null;
+        }
+    }
+
 
 }

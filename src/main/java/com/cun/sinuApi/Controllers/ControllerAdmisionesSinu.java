@@ -137,7 +137,8 @@ public class ControllerAdmisionesSinu {
                                                                        datos.get("ciclo").asText(),
                                                                        datos.get("tipoInscripcion").asText())
                 );
-    }@PostMapping("/descuento")
+    }
+    @PostMapping("/descuento")
     public ResponseEntity <List<Map<String, Object>>> descueno(@RequestBody JsonNode datos){
         return ResponseEntity.ok(
                 this.oracleServiceAdmisiones.consultarDescuentoMatricula(datos.get("periodo").asText()));
@@ -145,5 +146,10 @@ public class ControllerAdmisionesSinu {
     @PostMapping("/ciudad")
     public ResponseEntity<String> buscarCiudad(@RequestBody JsonNode datos) throws JsonProcessingException {
         return ResponseEntity.ok( chatGpt.sendMessageChatGPT(datos.get("ciudad").asText()));
+    }
+    @PostMapping("/pensum")
+    public ResponseEntity <List<Map<String, Object>>> pensum(@RequestBody JsonNode datos){
+        return ResponseEntity.ok(
+                this.oracleServiceAdmisiones.consultarPensumCarrera(datos.get("codigo_programa").asText(), datos.get("nivel_ingreso").asText()));
     }
 }
