@@ -152,4 +152,14 @@ public class ControllerAdmisionesSinu {
         return ResponseEntity.ok(
                 this.oracleServiceAdmisiones.consultarPensumCarrera(datos.get("codigo_programa").asText(), datos.get("nivel_ingreso").asText()));
     }
+    @PostMapping("/programasRecTitulo")
+    public ResponseEntity <List<Map<String, Object>>> recTitulo(@RequestBody JsonNode datos){
+        return ResponseEntity.ok(
+                this.oracleServiceAdmisiones.consultarProgramasEntradaReconocimentoTitulo(datos.get("nivel").asText()));
+    }
+    @PostMapping("/programasRecTituloDestino")
+    public ResponseEntity <List<Map<String, Object>>> recTituloDestino(@RequestBody JsonNode datos){
+        return ResponseEntity.ok(
+                this.oracleServiceAdmisiones.consultarProgramaSalidaReconocimentoTitulo(datos.get("nivel").asText(), datos.get("nombrePrograma").asText()));
+    }
 }

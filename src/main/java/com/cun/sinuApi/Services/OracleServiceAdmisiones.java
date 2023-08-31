@@ -179,7 +179,7 @@ public class OracleServiceAdmisiones {
     }
     public List<Map<String, Object>> consultarPeriodoDeIngreso(){
         try{
-            String sql = "SELECT DISTINCT PERIODO FROM CUNT_PROMOCIONES_DISPONIBLES WHERE ESTADO = 'A' AND TIPO_PROMOCION = 'PAGO ANTICIPADO'";
+            String sql = "SELECT COD_PERIODO FROM SRC_ACT_ACADEMICA WHERE TO_CHAR(SYSDATE,'dd/mm/yyyy') <= FEC_FIN AND VAL_ACTIVIDAD = 1 GROUP BY COD_PERIODO";
             List<Map<String, Object>> periodos = jdbcTemplate.queryForList(sql);
             return periodos;
         }
@@ -202,7 +202,24 @@ public class OracleServiceAdmisiones {
     public List<Map<String, Object>> consultarProgramas(String periodo){
         try{
             String sql = "SELECT DISTINCT PROGRAMA FROM CUNT_PROMOCIONES_DISPONIBLES WHERE ESTADO = 'A' AND TIPO_PROMOCION = 'PAGO ANTICIPADO' AND PERIODO = ?";
-            List<Map<String, Object>> programas = jdbcTemplate.queryForList(sql, periodo);
+            String getProgramByPeriod = "SELECT UNIQUE (A.COD_UNIDAD) " +
+                    ",U.NOM_UNIDAD " +
+                    ",P.COD_PENSUM " +
+                    ",s.id_sede " +
+                    ",S.NOM_SEDE " +
+                    ",se.id_seccional " +
+                    ",SE.Nom_Seccional " +
+                    "FROM SRC_ACT_ACADEMICA A " +
+                    "INNER JOIN SRC_PENSUM P ON P.COD_UNIDAD = A.COD_UNIDAD  " +
+                    "INNER JOIN SRC_UNI_ACADEMICA U ON U.COD_UNIDAD = A.COD_UNIDAD " +
+                    "INNER JOIN SRC_SEDE S ON S.ID_SEDE = U.ID_SEDE " +
+                    "INNER JOIN SRC_SECCIONAL SE ON SE.ID_SECCIONAL = S.ID_SECCIONAL " +
+                    "WHERE A.VAL_ACTIVIDAD = 1 " +
+                    "AND P.EST_PENSUM =  1 " +
+                    "AND P.IND_PEN_OFERTA = 1 " +
+                    "AND TO_CHAR (A.FEC_FIN ,'DD/MM/YYYY') >= SYSDATE " +
+                    "AND A.COD_PERIODO = ?";
+            List<Map<String, Object>> programas = jdbcTemplate.queryForList(getProgramByPeriod, periodo);
             return programas;
         }
         catch (DataAccessException e){
@@ -278,6 +295,38 @@ public class OracleServiceAdmisiones {
             return null;
         }
     }
+    public List<Map<String, Object>> consultarProgramasEntradaReconocimentoTitulo(String nivel){
+        try{
+            String[] nivelEstudio = new String[2];
+            nivelEstudio[0] =nivel.equals("TECNICO") ?  "Técnico Profesional" : "TECNÓLOGO";
+            nivelEstudio[1] = nivel.equals("TECNICO") ?  "Tecnico" : "TECNOLOGO";;
+            String getProgramTitleRecognition = "SELECT * FROM SINU.RECONOCIMIENTO r WHERE r.NIVEL_IES = UPPER(?) OR r.NIVEL_IES = UPPER(?)";
+            List<Map<String, Object>> programas = jdbcTemplate.queryForList(getProgramTitleRecognition, nivelEstudio[0], nivelEstudio[1]);
+            return programas;
+        }
+        catch (DataAccessException e){
+            logger.error("Error: " + e.getMessage());
+            return null;
+        }
+    }
+    public List<Map<String, Object>> consultarProgramaSalidaReconocimentoTitulo(String nivel, String nombrePrograma){
+        try{
+            String[] nivelEstudio = new String[2];
+            nivelEstudio[0] =nivel.equals("TECNICO") ?  "Técnico Profesional" : "TECNÓLOGO";
+            nivelEstudio[1] = nivel.equals("TECNICO") ?  "Tecnico" : "TECNOLOGO";;
+            String getProgramTitleRecognition = "SELECT * FROM SINU.RECONOCIMIENTO r " +
+                    "WHERE PROGRAMA_IES = ? " +
+                    "AND (r.NIVEL_IES = UPPER('?') OR r.NIVEL_IES = UPPER('?'))";
+            List<Map<String, Object>> programas = jdbcTemplate.queryForList(getProgramTitleRecognition,nombrePrograma,nivelEstudio[0],nivelEstudio[1]);
+            return programas;
+        }
+        catch (DataAccessException e){
+            logger.error("Error: " + e.getMessage());
+            return null;
+        }
+    }
+
+
 
 
 }
