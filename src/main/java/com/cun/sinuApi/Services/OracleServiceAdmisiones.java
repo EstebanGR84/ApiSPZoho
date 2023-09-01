@@ -299,8 +299,8 @@ public class OracleServiceAdmisiones {
         try{
             String[] nivelEstudio = new String[2];
             nivelEstudio[0] =nivel.equals("TECNICO") ?  "Técnico Profesional" : "TECNÓLOGO";
-            nivelEstudio[1] = nivel.equals("TECNICO") ?  "Tecnico" : "TECNOLOGO";;
-            String getProgramTitleRecognition = "SELECT * FROM SINU.RECONOCIMIENTO r WHERE r.NIVEL_IES = UPPER(?) OR r.NIVEL_IES = UPPER(?)";
+            nivelEstudio[1] = nivel.equals("TECNICO") ?  "Tecnico" : "TECNOLOGO";
+            String getProgramTitleRecognition = "SELECT DISTINCT r.PROGRAMA_IES, r.NIVEL_IES FROM SINU.RECONOCIMIENTO r WHERE r.NIVEL_IES = UPPER(?) OR r.NIVEL_IES = UPPER(?)";
             List<Map<String, Object>> programas = jdbcTemplate.queryForList(getProgramTitleRecognition, nivelEstudio[0], nivelEstudio[1]);
             return programas;
         }
@@ -313,11 +313,11 @@ public class OracleServiceAdmisiones {
         try{
             String[] nivelEstudio = new String[2];
             nivelEstudio[0] =nivel.equals("TECNICO") ?  "Técnico Profesional" : "TECNÓLOGO";
-            nivelEstudio[1] = nivel.equals("TECNICO") ?  "Tecnico" : "TECNOLOGO";;
-            String getProgramTitleRecognition = "SELECT * FROM SINU.RECONOCIMIENTO r " +
+            nivelEstudio[1] = nivel.equals("TECNICO") ?  "Tecnico" : "TECNOLOGO";
+            String getProgramTitleRecognition = "SELECT * FROM SINU.RECONOCIMIENTO " +
                     "WHERE PROGRAMA_IES = ? " +
-                    "AND (r.NIVEL_IES = UPPER('?') OR r.NIVEL_IES = UPPER('?'))";
-            List<Map<String, Object>> programas = jdbcTemplate.queryForList(getProgramTitleRecognition,nombrePrograma,nivelEstudio[0],nivelEstudio[1]);
+                    "AND (NIVEL_IES = UPPER(?) OR NIVEL_IES = UPPER(?))";
+            List<Map<String, Object>> programas = jdbcTemplate.queryForList(getProgramTitleRecognition, nombrePrograma, nivelEstudio[0], nivelEstudio[1]);
             return programas;
         }
         catch (DataAccessException e){
