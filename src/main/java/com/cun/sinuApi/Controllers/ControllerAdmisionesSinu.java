@@ -162,4 +162,9 @@ public class ControllerAdmisionesSinu {
         return ResponseEntity.ok(
                 this.oracleServiceAdmisiones.consultarProgramaSalidaReconocimentoTitulo(datos.get("nivel").asText(), datos.get("nombrePrograma").asText()));
     }
+    @PostMapping("/periodosDiponiblesPrograma")
+    public ResponseEntity <List<Map<String, Object>>> periodosDisponiblesPrograma(@RequestBody JsonNode datos){
+        return ResponseEntity.ok(
+                this.oracleServiceAdmisiones.consultarPeriodosDisponiblesPrograma(datos.get("codigoPrograma").asText()));
+    }
 }

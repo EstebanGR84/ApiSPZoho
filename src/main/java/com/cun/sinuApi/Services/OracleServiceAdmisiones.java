@@ -325,6 +325,39 @@ public class OracleServiceAdmisiones {
             return null;
         }
     }
+    public List<Map<String, Object>> consultarPeriodosDisponiblesPrograma(String codigoPrograma){
+        try{
+            String getPeriodosDisponibles = "SELECT UNIQUE " +
+                    "A.COD_PERIODO " +
+                    "FROM SRC_ACT_ACADEMICA A " +
+                    "INNER JOIN SRC_PENSUM P ON P.COD_UNIDAD = A.COD_UNIDAD " +
+                    "INNER JOIN SRC_UNI_ACADEMICA U ON U.COD_UNIDAD = A.COD_UNIDAD " +
+                    "INNER JOIN SRC_SEDE S ON S.ID_SEDE = U.ID_SEDE " +
+                    "INNER JOIN SRC_SECCIONAL SE ON SE.ID_SECCIONAL = S.ID_SECCIONAL " +
+                    "WHERE " +
+                    "P.EST_PENSUM =  1 " +
+                    "AND TO_CHAR (A.FEC_FIN ,'DD/MM/YYYY') >= SYSDATE " +
+                    "AND A.COD_UNIDAD = ? " +
+                    "AND A.COD_PERIODO IN ( SELECT A.COD_PERIODO " +
+                    "FROM SRC_ACT_ACADEMICA A " +
+                    "INNER JOIN SRC_PENSUM P ON P.COD_UNIDAD = A.COD_UNIDAD " +
+                    "INNER JOIN SRC_UNI_ACADEMICA U ON U.COD_UNIDAD = A.COD_UNIDAD " +
+                    "INNER JOIN SRC_SEDE S ON S.ID_SEDE = U.ID_SEDE " +
+                    "INNER JOIN SRC_SECCIONAL SE ON SE.ID_SECCIONAL = S.ID_SECCIONAL " +
+                    "WHERE A.VAL_ACTIVIDAD = 1 " +
+                    "AND P.EST_PENSUM =  1 " +
+                    "AND P.IND_PEN_OFERTA = 1 " +
+                    "AND TO_CHAR (A.FEC_FIN ,'DD/MM/YYYY') >= SYSDATE " +
+                    ")";
+            List<Map<String, Object>> programas = jdbcTemplate.queryForList(getPeriodosDisponibles, codigoPrograma);
+            return programas;
+        }
+        catch (DataAccessException e){
+            logger.error("Error: " + e.getMessage());
+            return null;
+        }
+    }
+
 
 
 
