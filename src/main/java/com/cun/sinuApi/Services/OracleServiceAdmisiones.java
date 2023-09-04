@@ -281,13 +281,14 @@ public class OracleServiceAdmisiones {
             return null;
         }
     }
-    public  List<Map<String, Object>> consultarPensumCarrera(String codigoPrograma, String nivelIngreso){
+    public  List<Map<String, Object>> consultarPensumCarrera(String codigoPrograma, String nivelIngreso, String codigoPensum){
         try{
             String sql = "SELECT * FROM SINU.SRC_MAT_PENSUM " +
                     "WHERE COD_UNIDAD = ? " +
                     "AND NUM_NIVEL < ? " +
+                    "AND COD_PENSUM = ? " +
                     "ORDER BY NUM_NIVEL ";
-            List<Map<String, Object>> materiasData = jdbcTemplate.queryForList(sql, codigoPrograma, Integer.parseInt(nivelIngreso));
+            List<Map<String, Object>> materiasData = jdbcTemplate.queryForList(sql, codigoPrograma, Integer.parseInt(nivelIngreso), codigoPensum);
             return materiasData;
         }
         catch (DataAccessException e){

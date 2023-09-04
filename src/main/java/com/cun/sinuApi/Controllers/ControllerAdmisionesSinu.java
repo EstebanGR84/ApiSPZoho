@@ -150,7 +150,7 @@ public class ControllerAdmisionesSinu {
     @PostMapping("/pensum")
     public ResponseEntity <List<Map<String, Object>>> pensum(@RequestBody JsonNode datos){
         return ResponseEntity.ok(
-                this.oracleServiceAdmisiones.consultarPensumCarrera(datos.get("codigo_programa").asText(), datos.get("nivel_ingreso").asText()));
+                this.oracleServiceAdmisiones.consultarPensumCarrera(datos.get("codigoPrograma").asText(), datos.get("nivel").asText(), datos.get("codigoPensum").asText()));
     }
     @PostMapping("/programasRecTitulo")
     public ResponseEntity <List<Map<String, Object>>> recTitulo(@RequestBody JsonNode datos){
