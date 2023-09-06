@@ -179,7 +179,7 @@ public class OracleServiceAdmisiones {
     }
     public List<Map<String, Object>> consultarPeriodoDeIngreso(){
         try{
-            String sql = "SELECT COD_PERIODO FROM SRC_ACT_ACADEMICA WHERE TO_CHAR(SYSDATE,'dd/mm/yyyy') <= FEC_FIN AND VAL_ACTIVIDAD = 1 GROUP BY COD_PERIODO";
+            String sql = "SELECT COD_PERIODO FROM SRC_ACT_ACADEMICA WHERE SYSDATE <= FEC_FIN AND VAL_ACTIVIDAD = 1 GROUP BY COD_PERIODO";
             List<Map<String, Object>> periodos = jdbcTemplate.queryForList(sql);
             return periodos;
         }
@@ -217,7 +217,7 @@ public class OracleServiceAdmisiones {
                     "WHERE A.VAL_ACTIVIDAD = 1 " +
                     "AND P.EST_PENSUM =  1 " +
                     "AND P.IND_PEN_OFERTA = 1 " +
-                    "AND TO_CHAR (A.FEC_FIN ,'DD/MM/YYYY') >= SYSDATE " +
+                    "AND A.FEC_FIN >= SYSDATE " +
                     "AND A.COD_PERIODO = ?";
             List<Map<String, Object>> programas = jdbcTemplate.queryForList(getProgramByPeriod, periodo);
             return programas;
@@ -337,7 +337,7 @@ public class OracleServiceAdmisiones {
                     "INNER JOIN SRC_SECCIONAL SE ON SE.ID_SECCIONAL = S.ID_SECCIONAL " +
                     "WHERE " +
                     "P.EST_PENSUM =  1 " +
-                    "AND TO_CHAR (A.FEC_FIN ,'DD/MM/YYYY') >= SYSDATE " +
+                    "AND A.FEC_FIN >= SYSDATE " +
                     "AND A.COD_UNIDAD = ? " +
                     "AND A.COD_PERIODO IN ( SELECT A.COD_PERIODO " +
                     "FROM SRC_ACT_ACADEMICA A " +
