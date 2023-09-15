@@ -301,8 +301,8 @@ public class OracleServiceAdmisiones {
             String[] nivelEstudio = new String[2];
             nivelEstudio[0] =nivel.equals("TECNICO") ?  "Técnico Profesional" : "TECNÓLOGO";
             nivelEstudio[1] = nivel.equals("TECNICO") ?  "Tecnico" : "TECNOLOGO";
-            String getProgramTitleRecognition = "SELECT DISTINCT r.PROGRAMA_IES, r.NIVEL_IES FROM SINU.RECONOCIMIENTO r WHERE r.NIVEL_IES = UPPER(?) OR r.NIVEL_IES = UPPER(?)";
-            List<Map<String, Object>> programas = jdbcTemplate.queryForList(getProgramTitleRecognition, nivelEstudio[0], nivelEstudio[1]);
+            String getProgramTitleRecognition = "SELECT DISTINCT r.PROGRAMA_IES, r.NIVEL_IES FROM SINU.RECONOCIMIENTO r WHERE r.NIVEL_IES = UPPER(?)";
+            List<Map<String, Object>> programas = jdbcTemplate.queryForList(getProgramTitleRecognition, nivel);
             return programas;
         }
         catch (DataAccessException e){
@@ -317,8 +317,9 @@ public class OracleServiceAdmisiones {
             nivelEstudio[1] = nivel.equals("TECNICO") ?  "Tecnico" : "TECNOLOGO";
             String getProgramTitleRecognition = "SELECT * FROM SINU.RECONOCIMIENTO " +
                     "WHERE PROGRAMA_IES = ? " +
-                    "AND (NIVEL_IES = UPPER(?) OR NIVEL_IES = UPPER(?))";
-            List<Map<String, Object>> programas = jdbcTemplate.queryForList(getProgramTitleRecognition, nombrePrograma, nivelEstudio[0], nivelEstudio[1]);
+                    "AND ESTADO = 'A' " +
+                    "AND NIVEL_IES = UPPER(?) ";
+            List<Map<String, Object>> programas = jdbcTemplate.queryForList(getProgramTitleRecognition, nombrePrograma, nivel);
             return programas;
         }
         catch (DataAccessException e){
@@ -348,7 +349,7 @@ public class OracleServiceAdmisiones {
                     "WHERE A.VAL_ACTIVIDAD = 1 " +
                     "AND P.EST_PENSUM =  1 " +
                     "AND P.IND_PEN_OFERTA = 1 " +
-                    "AND TO_CHAR (A.FEC_FIN ,'DD/MM/YYYY') >= SYSDATE " +
+                    "AND A.FEC_FIN >= SYSDATE " +
                     ")";
             List<Map<String, Object>> programas = jdbcTemplate.queryForList(getPeriodosDisponibles, codigoPrograma);
             return programas;
@@ -358,7 +359,33 @@ public class OracleServiceAdmisiones {
             return null;
         }
     }
-
+    public  List<Map<String, Object>> consultarCreditosPrograma(String codigoPrograma, String codigoPensum){
+        try{
+            String sql = "SELECT" +
+                    " (SELECT SUM(UNI_TEORICA) FROM SINU.SRC_MAT_PENSUM smp WHERE COD_UNIDAD = ? AND NUM_NIVEL <= 3 AND COD_PENSUM = ? ) AS CREDITOS_TECNICO," +
+                    " (SELECT SUM(UNI_TEORICA) FROM SINU.SRC_MAT_PENSUM smp WHERE COD_UNIDAD = ? AND NUM_NIVEL <= 7 AND NUM_NIVEL > 3 AND COD_PENSUM = ?) AS CREDITOS_TECNOLOGO," +
+                    " (SELECT SUM(UNI_TEORICA) FROM SINU.SRC_MAT_PENSUM smp WHERE COD_UNIDAD = ? AND NUM_NIVEL > 7 AND COD_PENSUM = ?) AS CREDITOS_PROFESIONAL" +
+                    " FROM DUAL";
+            List<Map<String, Object>> materiasData = jdbcTemplate.queryForList(sql, codigoPrograma, codigoPensum,codigoPrograma, codigoPensum,codigoPrograma, codigoPensum);
+            return materiasData;
+        }
+        catch (DataAccessException e){
+            logger.error("Error: " + e.getMessage());
+            return null;
+        }
+    }
+    public  List<Map<String, Object>> consultarEstudianteBasTercero(String noIdentificacion){
+        //String codigoPrograma, String codigoPensum
+        try{
+            String sql = "SELECT * FROM SINU.BAS_TERCERO bt WHERE bt.NUM_IDENTIFICACION = ?";
+            List<Map<String, Object>> materiasData = jdbcTemplate.queryForList(sql, noIdentificacion);
+            return materiasData;
+        }
+        catch (DataAccessException e){
+            logger.error("Error: " + e.getMessage());
+            return null;
+        }
+    }
 
 
 
